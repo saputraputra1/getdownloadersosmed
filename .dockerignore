@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+Dockerfile
+.dockerignore
+README.md
+test-fdown.js
+test.json
+update_index.js
+.gemini
+temp_downloads
