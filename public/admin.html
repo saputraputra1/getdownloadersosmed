@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Laporan Bug</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a12;
+      --surface: #141420;
+      --surface2: #1a1a2e;
+      --text: #f0f0fa;
+      --text2: #d0d0e8;
+      --muted: #8888aa;
+      --border: rgba(255, 255, 255, 0.1);
+      --accent: #8b5cf6;
+      --red: #ef4444;
+      --green: #10b981;
+      --orange: #f59e0b;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Login Overlay */
+    #loginOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .login-box {
+      background: var(--surface);
+      padding: 32px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    }
+    .login-box h2 {
+      margin-bottom: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .login-box input {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 15px;
+      font-family: inherit;
+    }
+    .login-box input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .login-box button {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .login-box button:hover { filter: brightness(1.1); }
+
+    /* Dashboard Layout */
+    .dashboard {
+      display: none;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      width: 100%;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+    }
+    .header h1 { font-weight: 800; }
+    .header-actions button {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+    .header-actions button:hover { background: var(--surface); }
+
+    /* Table */
+    .table-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th, td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      background: var(--surface2);
+    }
+    td { font-size: 14px; }
+    tr:last-child td { border-bottom: none; }
+    
+    .link-cell {
+      max-width: 250px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .link-cell a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .link-cell a:hover { text-decoration: underline; }
+    
+    .desc-cell {
+      max-width: 300px;
+      line-height: 1.5;
+      color: var(--text2);
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge.pending { background: rgba(245, 158, 11, 0.2); color: var(--orange); }
+    .badge.resolved { background: rgba(16, 185, 129, 0.2); color: var(--green); }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-action {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: 0.2s;
+    }
+    .btn-action:hover { border-color: var(--muted); }
+    .btn-action.resolve:hover { border-color: var(--green); color: var(--green); }
+    .btn-action.delete:hover { border-color: var(--red); color: var(--red); }
+
+    .empty-state {
+      padding: 40px;
+      text-align: center;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Area -->
+  <div id="loginOverlay">
+    <div class="login-box">
+      <h2>Admin Panel</h2>
+      <input type="password" id="adminPassword" placeholder="Masukkan Password" onkeydown="if(event.key === 'Enter') checkPassword()">
+      <button onclick="checkPassword()">Masuk</button>
+      <p id="loginError" style="color:var(--red); font-size:12px; margin-top:12px; display:none;">Password salah!</p>
+    </div>
+  </div>
+
+  <!-- Dashboard Area -->
+  <div class="dashboard" id="dashboardArea">
+    <div class="header">
+      <div>
+        <h1>Daftar Pengaduan Bug</h1>
+        <p style="color:var(--muted); font-size:14px; margin-top:4px;">Kelola laporan gagal download dari pengguna</p>
+      </div>
+      <div class="header-actions">
+        <button onclick="logout()">Keluar</button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table id="reportsTable">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Status</th>
+            <th>Link yang Gagal</th>
+            <th>Deskripsi Masalah</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="reportsBody">
+          <!-- Data dari JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Script Admin (No Firebase CDN for backend security) -->
+  <script src="/js/admin.js"></script>
+
+</body>
+</html>
